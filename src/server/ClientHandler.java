@@ -21,23 +21,22 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         try {
-            while(true) {
-                String request;
-                while((request = in.readLine()) != null ) {
-                    System.out.println("Client requested " + request);
-                    if(request.equals("login:admin:admin")) {
-                        this.out.println("I'm logging you in.");
-                    } else {
-                        this.out.println("Unknown command.");
-                    }
-                    this.out.flush();
+            String request;
+            while((request = in.readLine()) != null ) {
+                System.out.println("Client requested " + request);
+                if(request.equals("login:admin:admin")) {
+                    this.out.println("I'm logging you in.");
+                } else {
+                    this.out.println("Unknown command.");
                 }
+                this.out.flush();
             }
         } catch (IOException e) {
             System.err.println("ClientHandler IOexception thrown");
         } finally {
             out.close();
             try {
+                client.close();
                 in.close();
             } catch (IOException e) {
                 e.printStackTrace();
