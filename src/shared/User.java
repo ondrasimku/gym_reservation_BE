@@ -1,9 +1,11 @@
-package server;
+package shared;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import server.Lesson;
+import shared.Lesson;
 
-public class User {
+public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String username;
     private String password;
     private int id_user;
@@ -17,4 +19,7 @@ public class User {
         this.is_instructor = is_instructor;
     }
 
+    public void addLesson(Lesson lesson) {
+        this.lessons.add(lesson);
+    }
 }
