@@ -2,6 +2,7 @@ package server;
 
 import database.DatabaseController;
 import shared.User;
+import shared.Lesson;
 
 import java.io.*;
 import java.net.Socket;
@@ -29,6 +30,12 @@ public class ClientHandler implements Runnable {
 
                 if(request.substring(0, 5).equals("login")) {
                     login(request);
+                } else if (request.substring(0, 8).equals("register")) {
+                    register(request);
+                } else if(request.substring(0, 7).equals("bookout")) {
+                    bookout(request);
+                } else if (request.substring(0, 6).equals("bookin")) {
+                    bookin(request);
                 }
 
             }
@@ -53,26 +60,99 @@ public class ClientHandler implements Runnable {
         try {
             if (tokens.length != 3) {
                 this.out.writeObject("login:failed");
+                this.out.flush();
             } else {
                 boolean success = database.loginUser(tokens[1], tokens[2]);
                 if (success) {
                     this.out.writeObject("login:success");
                     this.out.flush();
                     Thread.sleep(1000);
-                    this.out.writeObject(getUserAfterLogin(tokens[1], tokens[2]));
+                    this.out.writeObject(getUser(tokens[1], tokens[2]));
                     this.out.flush();
                 } else {
                     this.out.writeObject("login:failed");
+                    this.out.flush();
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    private User getUserAfterLogin(String username, String password) {
+    private void register(String request) {
+        String delims = ":";
+        String[] tokens = request.split(delims);
+        try {
+            if (tokens.length != 4) {
+                this.out.writeObject("register:failed");
+                this.out.flush();
+            } else {
+                boolean success = database.registerUser(tokens[1], tokens[2]);
+                if (success) {
+                    this.out.writeObject("register:success");
+                    this.out.flush();
+                } else {
+                    this.out.writeObject("register:failed");
+                    this.out.flush();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void bookout(String request) {
+        String delims = ":";
+        String[] tokens = request.split(delims);
+        try {
+            if (tokens.length != 5) {
+                this.out.writeObject("bookout:failed");
+                this.out.flush();
+            } else {
+                boolean success = database.bookoutLesson(tokens[1], tokens[2], tokens[3], tokens[4]);
+                if (success) {
+                    this.out.writeObject("bookout:success");
+                    this.out.flush();
+                    Thread.sleep(1000);
+                    this.out.writeObject(getUser(tokens[3], tokens[4]));
+                    this.out.flush();
+                } else {
+                    this.out.writeObject("bookout:failed");
+                    this.out.flush();
+                }
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void bookin(String request) {
+        String delims = ":";
+        String[] tokens = request.split(delims);
+        try {
+            if (tokens.length != 5) {
+                this.out.writeObject("bookin:failed");
+                this.out.flush();
+            } else {
+                boolean success = database.bookinLesson(tokens[1], tokens[2], tokens[3], tokens[4]);
+                if (success) {
+                    this.out.writeObject("bookin:success");
+                    this.out.flush();
+                    Thread.sleep(1000);
+                    this.out.writeObject(getUser(tokens[3], tokens[4]));
+                    this.out.flush();
+                } else {
+                    this.out.writeObject("bookin:failed");
+                    this.out.flush();
+                }
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private User getUser(String username, String password) {
         return database.getUser(username, password);
     }
 
