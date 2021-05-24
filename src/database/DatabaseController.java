@@ -177,4 +177,53 @@ public class DatabaseController {
         }
     }
 
+    public boolean deleteLesson(String lesson, String user, String username, String password) {
+        int lesson_id = Integer.parseInt(lesson);
+
+        boolean lectorCheck = checkLector(username, password);
+
+        if(!lectorCheck) {
+            return false;
+        }
+
+        String sql1 = "delete from user_lesson where id_lesson = ?";
+        String sql2 = "delete from lesson where id_lesson = ?";
+
+        try {
+            PreparedStatement preparedStatement = dbConn.prepareStatement(sql1);
+            preparedStatement.setInt(1, lesson_id);
+            int result = preparedStatement.executeUpdate();
+            preparedStatement = dbConn.prepareStatement(sql2);
+            preparedStatement.setInt(1, lesson_id);
+            result = preparedStatement.executeUpdate();
+
+            if(result == 0) {
+                return false;
+            } else {
+                return true;
+            }
+        } catch (SQLException throwables) {
+            System.err.println("Exception in delete prepared statement " + throwables.getMessage());
+            return false;
+        }
+    }
+
+    private boolean checkLector(String username, String password) {
+        String sql = "select * from user where username = ? and password = ? and is_instructor = 1;";
+        try {
+            PreparedStatement preparedStatement = dbConn.prepareStatement(sql);
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, password);
+            ResultSet result = preparedStatement.executeQuery();
+            if(!result.next()) {
+                return false;
+            } else {
+                return true;
+            }
+        } catch (SQLException throwables) {
+            System.err.println("Exception in delete prepared statement " + throwables.getMessage());
+            return false;
+        }
+    }
+
 }

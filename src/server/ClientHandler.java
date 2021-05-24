@@ -36,6 +36,8 @@ public class ClientHandler implements Runnable {
                     bookout(request);
                 } else if (request.substring(0, 6).equals("bookin")) {
                     bookin(request);
+                } else if(request.substring(0, 6).equals("delete")) {
+                    delete(request);
                 }
 
             }
@@ -143,6 +145,31 @@ public class ClientHandler implements Runnable {
                     this.out.flush();
                 } else {
                     this.out.writeObject("bookin:failed");
+                    this.out.flush();
+                }
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void delete(String request) {
+        String delims = ":";
+        String[] tokens = request.split(delims);
+        try {
+            if (tokens.length != 5) {
+                this.out.writeObject("delete:failed");
+                this.out.flush();
+            } else {
+                boolean success = database.deleteLesson(tokens[1], tokens[2], tokens[3], tokens[4]);
+                if (success) {
+                    this.out.writeObject("delete:success");
+                    this.out.flush();
+                    Thread.sleep(1000);
+                    this.out.writeObject(getUser(tokens[3], tokens[4]));
+                    this.out.flush();
+                } else {
+                    this.out.writeObject("delete:failed");
                     this.out.flush();
                 }
             }
