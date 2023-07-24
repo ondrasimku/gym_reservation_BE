@@ -1,3 +1,4 @@
-# Reservation system for gym members - Back-end
+# Reservation system for gym
 
-Written in Java
+Backend for reservation system designed for gyms
+Communicates over sockets with clients
